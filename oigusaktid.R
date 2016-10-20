@@ -139,12 +139,42 @@ ggplot(teenusAkte[1:30,], aes(x=reorder(nimetus,n), y=n))+
   coord_flip()
 #pltoime seose seaduste ja teenuste vahel
 library(igraph)
-#seadused, millele viidatakse rohkem kui kolm korda
-
+#jätam alles ainult sobivad muutujad
 network=riigit[, c("pealkiri", "id")]
 #eemaldame kus on vähe viiteid
 network=network[network$pealkiri%in% AktideViited$pealkiri[AktideViited$n>30]|network$id%in% idAkte$id[idAkte$n>30],]
 #network=network[network$id%in% idAkte$id[idAkte$n>8],]
 
 g=graph_from_data_frame(network,directed = F)
+#mitu edge
+ecount(g)
+#mitu verticest
+vcount(g)
+#plotime
 plot(g)
+# network diameter
+diameter(g)
+# show the farthest nodes
+farthest.nodes(g)
+#vähendame, hoiame alles need, millel on p-väärtus piisavalt väike
+# library(semnet)
+# g_backbone = getBackboneNetwork(g, alpha=0.0001, max.vertices=100)
+#parem layoutiga
+layout <- layout.reingold.tilford(g, circular=T)
+plot(g, layout=layout )
+
+l <- layout.circle(g)
+plot(g, layout=l, vertex.label=NA)
+#interaktiivne
+tkplot(g, layout=layout)
+tkplot(g, layout=l, vertex.label=NA)
+tkplot(g, layout=l,vertex.label = ifelse(degree(g) > 2, V(g)$label, NA))
+
+#veel üks variant interaktiivse graafiku jaoks
+library(InteractiveIGraph)
+gInt = InteractiveIGraph.Constructor(g)
+gInt = plot(gInt)
+# now it is interactive. Please enjoy :)
+if(interactive()){
+  gInt = InteractiveIGraph(gInt)
+}
